@@ -5,7 +5,6 @@
   <title>Parse Prototype</title>
   <meta name="description" content="My Parse App">
   <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -24,8 +23,9 @@
         <div id="or">or</div>
         <h1>Log in with Parse</h1>
         <form action="#">
-          <input type="text" placeholder="username or email" value="" required>
-          <input type="password" placeholder="password" value="" required>
+          <input id="username" type="text" placeholder="username or email" value="" required>
+          <input id="password" type="password" placeholder="password" value="" required>
+          <span id="logout" href="#">Sign out</span>
           <button type="submit"><i class="fa fa-arrow-right"></i></button>
         </form>
         <div id="note"><a href="#">Forgot your password?</a></div>
@@ -50,7 +50,8 @@
 
     function userInfo() {
       var user = Parse.User.current();
-      if (user) {
+
+      if (user && user.attributes.authData != undefined) {
         var fbID = "/" + user.attributes.authData.facebook.id;
         FB.api(fbID, function(response) {
             user.set("name", response.name);
@@ -77,10 +78,12 @@
 
         });
 
-
         $("#connect").text("Yay, you're signed in.");
         $("#signout, #userinfo").show();
 
+      } else if (user) {
+        $("#logout").show();
+        $('#username, #password, #note, #mainlogin h1').hide();
       } else {
         $("#connect").text("Connect with Facebook");
         $("#signout, #userinfo").hide();
@@ -95,26 +98,57 @@
             userInfo();
           },
           error: function(user, error) {
-            console.log("User cancelled the Facebook login or did not fully authorize.");
+            alert(error);
     			}
 	    });
     }
 
     function fbSignOut() {
       Parse.User.logOut();
+      $("#logout").hide();
+    }
+
+    function parseSignIn() {
+      var username = $('#username').val(),
+          password = $('#password').val();
+
+      Parse.User.logIn(username, password, {
+        success: function(user) {
+          $("#logout").show();
+          $('#username, #password, #note, #mainlogin h1').hide();
+          console.log("Logged in!");
+        },
+        error: function(user, error) {
+          alert(error);
+        }
+      });
+    }
+
+    function parseSignOut() {
+      Parse.User.logOut();
+      $('#username, #password, #note, #mainlogin h1').show();
     }
     
     userInfo();
 
     //Event Handlers
-    $("#connect").click(function () {
+    $("#connect").click(function() {
         fbSignIn();
     });
 
     $("#signout").click(function() {
       fbSignOut();
       userInfo();
-    })
+    });
+
+    $("#mainlogin button").click(function (e) {
+      parseSignIn();
+      e.preventDefault();
+    });
+
+    $("#logout").click(function() {
+      parseSignOut();
+    });
 
   };
 
