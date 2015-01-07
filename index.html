@@ -19,7 +19,6 @@
       <span id="signout" href="#">Sign out</span>
     </div>
       <div id="mainlogin">
-        <div id="or">or</div>
         <h1>Log in with Parse</h1>
         <form action="#">
           <input id="username" type="text" placeholder="email" value="" required>
@@ -32,8 +31,8 @@
           <input type="text" placeholder="Enter your email address" required>
           <span id="passwordreset">Reset password</span>
         </div>
+        <div id="userinfo"></div>
     </div>
-    <div id="userinfo"></div>
   </div>
 
   
@@ -55,38 +54,20 @@
     function userInfo() {
       var user = Parse.User.current();
 
-      if (user && user.attributes.authData != undefined) {
-        var fbID = "/" + user.attributes.authData.facebook.id;
-        FB.api(fbID, function(response) {
-            user.set("name", response.name);
-            user.set("username", response.first_name + '.' + response.last_name);
-            user.set("email", response.email);
-            user.set("location", response.location.name); 
-            user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
-            user.save(null, {
-              success: function(user) {
-                console.log("User Saved!");
-              },
-              error: function(user, error) {
-                console.log("Didn't save. Error is " + error);
-              }
-            })
-            
-            $("#userinfo").html(
-                '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
-                'Name: ' + user.attributes.name + '<br />' +
-                'Username: ' + user.attributes.username + '<br />' +
-                'Email: ' + user.attributes.email + '<br />' +
-                'Location: ' + user.attributes.location
-            );
+      if (Parse.FacebookUtils.isLinked) {
+          $("#userinfo").html(
+              '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
+              'Name: ' + user.attributes.name + '<br />' +
+              'Username: ' + user.attributes.username + '<br />' +
+              'Email: ' + user.attributes.email + '<br />' +
+              'Location: ' + user.attributes.location
+          );
 
-        });
-
-        $("#connect").text("Yay, you're signed in.");
+        $("#connect").text("Yay, your accounts are linked.");
         $("#signout, #userinfo").show();
 
       } else if (user) {
-        $("#logout").css('display', 'block');
+        $("#logout, #facebook").css('display', 'block');
         $('#username, #password, #note, #mainlogin h1').hide();
 
         $("#userinfo").html(
@@ -100,21 +81,65 @@
       }
     }
   
-    function fbSignIn() {
-        // Make a new Parse user, 'sign in' with FB, and set their info in the Parse.user object.
-        var user = new Parse.User();
-        Parse.FacebookUtils.logIn('email, user_location', {
-    			success: function(user) {
-            userInfo();
+    function fbLink() {
+      // Make a new Parse user, 'sign in' with FB, and set their info in the Parse.user object.
+     //  var user = new Parse.User();
+     //  Parse.FacebookUtils.logIn('email, user_location', {
+  			// success: function(user) {
+     //      userInfo();
+     //    },
+     //    error: function(user, error) {
+     //      alert(error.message);
+  			// }
+	    // });
+      
+      var user = Parse.User.current();
+
+      if (!Parse.FacebookUtils.isLinked(user)) {
+        Parse.FacebookUtils.link(user, null, {
+          success: function(user) {            
+            var fbID = "/" + user.attributes.authData.facebook.id;
+
+            FB.api(fbID, function(response) {
+                user.set("name", response.name);
+                user.set("location", response.location.name); 
+                user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
+                user.save(null, {
+                  success: function(user) {
+                    console.log("User Saved!");
+                    
+                    $("#userinfo").html(
+                        '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
+                        'Name: ' + user.attributes.name + '<br />' +
+                        'Username: ' + user.attributes.username + '<br />' +
+                        'Email: ' + user.attributes.email + '<br />' +
+                        'Location: ' + user.attributes.location
+                    );
+
+                  },
+                  error: function(user, error) {
+                    alert(error.message);
+                  }
+                });
+            });
           },
+            
           error: function(user, error) {
-            alert(error);
-    			}
-	    });
+            alert("User cancelled the Facebook login or did not fully authorize.");
+          }
+        });
+      }
+
     }
 
-    function fbSignOut() {
-      Parse.User.logOut();
+    function fbUnlink() {
+      //Parse.User.logOut();
+      var user = Parse.User.current();
+      Parse.FacebookUtils.unlink(user, {
+        success: function(user) {
+          alert("The user is no longer associated with their Facebook account.");
+        }
+      });
       $("#logout").hide();
     }
 
@@ -124,8 +149,9 @@
 
       Parse.User.logIn(username, password, {
         success: function(user) {
-          $("#logout").css('display', 'block');
+          $("#logout, #facebook").css('display', 'block');
           $('#username, #password, #note, #mainlogin h1').hide();
+          userInfo();
         },
         error: function(user, error) {
           alert(error.message);
@@ -148,7 +174,7 @@
         },
         error: function(error) {
           // Show the error message somewhere
-          alert("Error: " + error.code + " " + error.message);
+          alert(error.message);
         }
       });
     }
@@ -157,11 +183,11 @@
 
     //Event Handlers
     $("#connect").click(function() {
-        fbSignIn();
+        fbLink();
     });
 
     $("#signout").click(function() {
-      fbSignOut();
+      fbUnlink();
       userInfo();
     });
 
