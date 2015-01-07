@@ -1,0 +1,47 @@
+html {
+    font-size: 16px;
+}
+body {
+    background: #eee;
+}
+.container {
+    width: 80%;
+    margin: 10% auto;
+    min-height: 15rem;
+    text-align: center;
+}
+    .container button {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 2rem;
+        max-width: 50%;
+        color: darkgray;
+        display: none;
+        transition: background 0.5s, color 0.5s;
+    }
+        .container button:focus {
+            outline: 0;
+        }
+        .container button:hover {
+            background: lightgray;
+            color: #000;
+        }
+        .container button.enabled {
+            display: inline;
+        }
+        .container button.disabled {
+            background: lightgray;
+            color: #fff;
+            display: inline;
+        }
+    .container .user-info {
+        margin: 20px 0;
+        display: none;
+    }
+    .container .username {
+        display: inline;
+    }
+        .container .username.disabled {
+            display: none;
+        }

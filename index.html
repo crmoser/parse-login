@@ -1,0 +1,142 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+
+  <title>Parse Prototype</title>
+  <meta name="description" content="My Parse App">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.3.2.min.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="username">
+      <label>Username</label>
+      <input type="text"></input>
+    </div>
+    <button class="fb-sign-in"></button>
+    <div class="user-info"></div>
+  </div>
+
+  
+  <div id="fb-root"></div>
+
+  <script type="text/javascript">
+
+	Parse.initialize("MhsTx95fClaI5CSB7pPqBoC2BPJvOwyIvRQMTCQS", "yZZMGCjCHlIryXe7cRFqkjrZFOTxf4j587H0gAzw");
+
+  window.fbAsyncInit = function() {
+		Parse.FacebookUtils.init({
+			appId      : '642657672506723',
+			status     : true,  
+			cookie     : true,  
+			xfbml      : true,
+			version    : 'v2.2'
+		});
+
+    function setUser() {
+      var currentUser = Parse.User.current();
+      if (currentUser) {
+          $('.fb-sign-in').text("You're Signed In! Now Sign Out.").removeClass('enabled').addClass('disabled');
+          $('.username').addClass('disabled');
+          FB.api('/me', function(response) {
+              var imgLink = "http://graph.facebook.com/"+response.id+"/picture",
+                  username = $(".username input").val();
+              currentUser.set("name", response.name);
+              currentUser.set("username", username);
+              currentUser.set("email", response.email);
+              currentUser.set("location", response.location.name); 
+              currentUser.set("profilepic", imgLink);
+              displayUserInfo();
+          });
+
+      } else {
+          $('.fb-sign-in').text("Sign In With Facebook").removeClass('disabled').addClass('enabled');
+          $('.username').removeClass('disabled');
+      }
+    }
+
+    function displayUserInfo() {
+      var user = Parse.User.current();
+      $('.user-info').html('<img src=' + user.attributes.profilepic + '/>' + '<br />' +
+                         'Name: ' + user.attributes.name + '<br />' +
+                         'Username: ' + user.attributes.username + '<br />' +
+                         'Email: ' + user.attributes.email + '<br />' +
+                         'Location: ' + user.attributes.location
+        );
+      $(".user-info img").one("load", function() {
+        $('.user-info').fadeIn(500);
+      }).each(function() {
+        if(this.complete) $(this).load();
+      });
+    }
+  
+    function fbSignIn() {
+      if ($('.username input').val()) {
+        var user = new Parse.User();
+        Parse.FacebookUtils.logIn('email, user_location', {
+    			success: function(user) {
+    				if (!user.existed()) {
+    					console.log("User signed up and logged in through Facebook!");
+              setUser();
+              displayUserInfo();
+    				} else {  
+    					console.log("User logged in through Facebook!");
+              setUser();
+              displayUserInfo();
+            }
+          },
+          error: function(user, error) {
+            console.log("User cancelled the Facebook login or did not fully authorize.");
+    			}
+  	    });
+      } else {
+        alert('Make a username.');
+      }
+    }
+
+    function fbSignOut() {
+      Parse.User.logOut();
+      $('.user-info').fadeOut(500).html('');
+      setUser();
+    }
+
+    function makePost() {
+      var user = Parse.User.current();
+      // Make a new post
+      var Post = Parse.Object.extend("Post");
+      var post = new Post();
+      post.set("title", "My New Post");
+      post.set("body", "This is some great content.");
+      post.set("user", user);
+    }
+    
+    setUser();
+    //Event Handlers
+    $(".fb-sign-in").click(function () {
+      if ($(this).is('.enabled')) {
+        fbSignIn();
+      } else {
+        fbSignOut();
+      }
+    });
+
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "http://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+
+  </script>
+
+</body>
+
+</html>
