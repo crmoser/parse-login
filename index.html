@@ -38,57 +38,49 @@
 			version    : 'v2.2'
 		});
 
-    function setUser() {
+    function userInfo() {
       var currentUser = Parse.User.current();
       if (currentUser) {
           $('.fb-sign-in').text("You're Signed In! Now Sign Out.").removeClass('enabled').addClass('disabled');
           $('.username').addClass('disabled');
-          FB.api('/me', function(response) {
-              var imgLink = "http://graph.facebook.com/"+response.id+"/picture",
-                  username = $(".username input").val();
-              currentUser.set("name", response.name);
-              currentUser.set("username", username);
-              currentUser.set("email", response.email);
-              currentUser.set("location", response.location.name); 
-              currentUser.set("profilepic", imgLink);
-              displayUserInfo();
-          });
-
+          $('.user-info').show();
       } else {
           $('.fb-sign-in').text("Sign In With Facebook").removeClass('disabled').addClass('enabled');
           $('.username').removeClass('disabled');
+          $('.username input').val('');
       }
-    }
-
-    function displayUserInfo() {
-      var user = Parse.User.current();
-      $('.user-info').html('<img src=' + user.attributes.profilepic + '/>' + '<br />' +
-                         'Name: ' + user.attributes.name + '<br />' +
-                         'Username: ' + user.attributes.username + '<br />' +
-                         'Email: ' + user.attributes.email + '<br />' +
-                         'Location: ' + user.attributes.location
-        );
-      $(".user-info img").one("load", function() {
-        $('.user-info').fadeIn(500);
-      }).each(function() {
-        if(this.complete) $(this).load();
-      });
     }
   
     function fbSignIn() {
       if ($('.username input').val()) {
+        // Make a new Parse user, 'sign in' with FB, and set their info in the Parse.user object.
         var user = new Parse.User();
         Parse.FacebookUtils.logIn('email, user_location', {
     			success: function(user) {
-    				if (!user.existed()) {
-    					console.log("User signed up and logged in through Facebook!");
-              setUser();
-              displayUserInfo();
-    				} else {  
-    					console.log("User logged in through Facebook!");
-              setUser();
-              displayUserInfo();
-            }
+              $('.fb-sign-in').text("You're Signed In! Now Sign Out.").removeClass('enabled').addClass('disabled');
+              $('.username').addClass('disabled');
+              FB.api('/me', function(response) {
+                  var imgLink = "http://graph.facebook.com/"+response.id+"/picture",
+                      username = $(".username input").val();
+
+                  user.set("name", response.name);
+                  user.set("username", username);
+                  user.set("email", response.email);
+                  user.set("location", response.location.name); 
+                  user.set("profilepic", imgLink);
+                  
+                  $('.user-info').html(
+                      '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
+                      'Name: ' + user.attributes.name + '<br />' +
+                      'Username: ' + user.attributes.username + '<br />' +
+                      'Email: ' + user.attributes.email + '<br />' +
+                      'Location: ' + user.attributes.location
+                  );
+
+                  userInfo();
+
+              });
+
           },
           error: function(user, error) {
             console.log("User cancelled the Facebook login or did not fully authorize.");
@@ -101,21 +93,12 @@
 
     function fbSignOut() {
       Parse.User.logOut();
-      $('.user-info').fadeOut(500).html('');
-      setUser();
-    }
-
-    function makePost() {
-      var user = Parse.User.current();
-      // Make a new post
-      var Post = Parse.Object.extend("Post");
-      var post = new Post();
-      post.set("title", "My New Post");
-      post.set("body", "This is some great content.");
-      post.set("user", user);
+      $('.user-info').hide().html('');
+      userInfo();
     }
     
-    setUser();
+    userInfo();
+    
     //Event Handlers
     $(".fb-sign-in").click(function () {
       if ($(this).is('.enabled')) {
