@@ -5,7 +5,6 @@
   <title>Parse Prototype</title>
   <meta name="description" content="My Parse App">
   <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -18,18 +17,23 @@
       <i class="fa fa-facebook"></i>
       <div id="connect">Connect with Facebook</div>
       <span id="signout" href="#">Sign out</span>
-      <div id="userinfo"></div>
     </div>
       <div id="mainlogin">
         <div id="or">or</div>
         <h1>Log in with Parse</h1>
         <form action="#">
-          <input type="text" placeholder="username or email" value="" required>
-          <input type="password" placeholder="password" value="" required>
+          <input id="username" type="text" placeholder="email" value="" required>
+          <input id="password" type="password" placeholder="password" value="" required>
+          <span id="logout" href="#">Sign out</span>
           <button type="submit"><i class="fa fa-arrow-right"></i></button>
         </form>
-        <div id="note"><a href="#">Forgot your password?</a></div>
+        <span id="note">Forgot your password?</span>
+        <div id="resetform">
+          <input type="text" placeholder="Enter your email address" required>
+          <span id="passwordreset">Reset password</span>
+        </div>
     </div>
+    <div id="userinfo"></div>
   </div>
 
   
@@ -50,7 +54,7 @@
 
     function userInfo() {
       var user = Parse.User.current();
-      if (user) {
+      if (user && user.attributes.authData != undefined) {
         var fbID = "/" + user.attributes.authData.facebook.id;
         FB.api(fbID, function(response) {
             user.set("name", response.name);
@@ -77,9 +81,17 @@
 
         });
 
-
         $("#connect").text("Yay, you're signed in.");
         $("#signout, #userinfo").show();
+
+      } else if (user) {
+        $("#logout").css('display', 'block');
+        $('#username, #password, #note, #mainlogin h1').hide();
+
+        $("#userinfo").html(
+            'Username: ' + user.attributes.username + '<br />' +
+            'Email: ' + user.attributes.email + '<br />' 
+        ).show();
 
       } else {
         $("#connect").text("Connect with Facebook");
@@ -95,27 +107,83 @@
             userInfo();
           },
           error: function(user, error) {
-            console.log("User cancelled the Facebook login or did not fully authorize.");
+            alert(error);
     			}
 	    });
     }
 
     function fbSignOut() {
       Parse.User.logOut();
+      $("#logout").hide();
+    }
+
+    function parseSignIn() {
+      var username = $('#username').val(),
+          password = $('#password').val();
+
+      Parse.User.logIn(username, password, {
+        success: function(user) {
+          $("#logout").css('display', 'block');
+          $('#username, #password, #note, #mainlogin h1').hide();
+        },
+        error: function(user, error) {
+          alert(error.message);
+        }
+      });
+    }
+
+    function parseSignOut() {
+      Parse.User.logOut();
+      $("#logout").hide();
+      $('#username, #password, #note, #mainlogin h1').show();
+    }
+
+    function resetPassword(email) {
+      Parse.User.requestPasswordReset(email, {
+        success: function() {
+          alert("Check your email to reset your password.");
+          $('#username, #password, #note, #mainlogin h1').show();
+          $('#resetform').hide(); 
+        },
+        error: function(error) {
+          // Show the error message somewhere
+          alert("Error: " + error.code + " " + error.message);
+        }
+      });
     }
     
     userInfo();
 
     //Event Handlers
-    $("#connect").click(function () {
+    $("#connect").click(function() {
         fbSignIn();
     });
 
     $("#signout").click(function() {
       fbSignOut();
       userInfo();
-    })
+    });
 
+    $("#mainlogin button").click(function (e) {
+      parseSignIn();
+      e.preventDefault();
+    });
+
+    $("#logout").click(function() {
+      parseSignOut();
+    });
+
+    $("#note").click(function () {
+      $(this).hide();
+      $("#username, #password, #note").hide();
+      $("#resetform").show();
+    });
+
+    $("#passwordreset").click(function () {
+      var email = $("#resetform input").val();
+      resetPassword(email);
+    });
+    
   };
 
   (function(d, s, id){
