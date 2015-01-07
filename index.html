@@ -23,12 +23,16 @@
         <div id="or">or</div>
         <h1>Log in with Parse</h1>
         <form action="#">
-          <input id="username" type="text" placeholder="username or email" value="" required>
+          <input id="username" type="text" placeholder="email" value="" required>
           <input id="password" type="password" placeholder="password" value="" required>
           <span id="logout" href="#">Sign out</span>
           <button type="submit"><i class="fa fa-arrow-right"></i></button>
         </form>
-        <div id="note"><a href="#">Forgot your password?</a></div>
+        <span id="note">Forgot your password?</span>
+        <div id="resetform">
+          <input type="text" placeholder="Enter your email address" required>
+          <span id="passwordreset">Reset password</span>
+        </div>
     </div>
   </div>
 
@@ -116,17 +120,31 @@
         success: function(user) {
           $("#logout").show();
           $('#username, #password, #note, #mainlogin h1').hide();
-          console.log("Logged in!");
         },
         error: function(user, error) {
-          alert(error);
+          alert(error.message);
         }
       });
     }
 
     function parseSignOut() {
       Parse.User.logOut();
+      $("#logout").hide();
       $('#username, #password, #note, #mainlogin h1').show();
+    }
+
+    function resetPassword(email) {
+      Parse.User.requestPasswordReset(email, {
+        success: function() {
+          alert("Check your email to reset your password.");
+          $('#username, #password, #note, #mainlogin h1').show();
+          $('#resetform').hide(); 
+        },
+        error: function(error) {
+          // Show the error message somewhere
+          alert("Error: " + error.code + " " + error.message);
+        }
+      });
     }
     
     userInfo();
@@ -148,6 +166,17 @@
 
     $("#logout").click(function() {
       parseSignOut();
+    });
+
+    $("#note").click(function () {
+      $(this).hide();
+      $("#username, #password, #note").hide();
+      $("#resetform").show();
+    });
+
+    $("#passwordreset").click(function () {
+      var email = $("#resetform input").val();
+      resetPassword(email);
     });
 
   };
