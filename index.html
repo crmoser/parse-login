@@ -15,16 +15,21 @@
 <body>
 
   <div id="loginform">
-    <div id="facebook"><i class="fa fa-facebook"></i><div id="connect">Connect with Facebook</div></div>
+    <div id="facebook">
+      <i class="fa fa-facebook"></i>
+      <div id="connect">Connect with Facebook</div>
+      <span id="signout" href="#">Sign out</span>
+      <div id="userinfo"></div>
+    </div>
       <div id="mainlogin">
         <div id="or">or</div>
-          <h1>Log in with awesome new thing</h1>
-          <form action="#">
-            <input type="text" placeholder="username or email" value="" required>
-            <input type="password" placeholder="password" value="" required>
-            <button type="submit"><i class="fa fa-arrow-right"></i></button>
-          </form>
-      <div id="note"><a href="#">Forgot your password?</a></div>
+        <h1>Log in with Parse</h1>
+        <form action="#">
+          <input type="text" placeholder="username or email" value="" required>
+          <input type="password" placeholder="password" value="" required>
+          <button type="submit"><i class="fa fa-arrow-right"></i></button>
+        </form>
+        <div id="note"><a href="#">Forgot your password?</a></div>
     </div>
   </div>
 
@@ -45,74 +50,73 @@
 		});
 
     function userInfo() {
-      var currentUser = Parse.User.current();
-      if (currentUser) {
-          $('.fb-sign-in').text("You're Signed In! Now Sign Out.").removeClass('enabled').addClass('disabled');
-          $('.username').addClass('disabled');
-          $('.user-info').show();
+      var user = Parse.User.current();
+      if (user) {
+        var fbID = "/" + user.attributes.authData.facebook.id;
+        FB.api(fbID, function(response) {
+            user.set("name", response.name);
+            user.set("username", response.name);
+            user.set("email", response.email);
+            user.set("location", response.location.name); 
+            user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
+
+            user.save(null, {
+              success: function(user) {
+                console.log("User Saved!");
+              },
+              error: function(user, error) {
+                console.log("Didn't save. Error is " + error);
+              }
+            })
+            
+            $("#userinfo").html(
+                '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
+                'Name: ' + user.attributes.name + '<br />' +
+                'Username: ' + user.attributes.username + '<br />' +
+                'Email: ' + user.attributes.email + '<br />' +
+                'Location: ' + user.attributes.location
+            );
+
+        });
+
+
+        $("#connect").text("Yay, you're signed in.");
+        $("#signout, #userinfo").show();
+
       } else {
-          $('.fb-sign-in').text("Sign In With Facebook").removeClass('disabled').addClass('enabled');
-          $('.username').removeClass('disabled');
-          $('.username input').val('');
+        $("#connect").text("Connect with Facebook");
+        $("#signout, #userinfo").hide();
       }
     }
   
     function fbSignIn() {
-      if ($('.username input').val()) {
         // Make a new Parse user, 'sign in' with FB, and set their info in the Parse.user object.
         var user = new Parse.User();
         Parse.FacebookUtils.logIn('email, user_location', {
     			success: function(user) {
-              $('.fb-sign-in').text("You're Signed In! Now Sign Out.").removeClass('enabled').addClass('disabled');
-              $('.username').addClass('disabled');
-              FB.api('/me', function(response) {
-                  var imgLink = "http://graph.facebook.com/"+response.id+"/picture",
-                      username = $(".username input").val();
-
-                  user.set("name", response.name);
-                  user.set("username", username);
-                  user.set("email", response.email);
-                  user.set("location", response.location.name); 
-                  user.set("profilepic", imgLink);
-                  
-                  $('.user-info').html(
-                      '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
-                      'Name: ' + user.attributes.name + '<br />' +
-                      'Username: ' + user.attributes.username + '<br />' +
-                      'Email: ' + user.attributes.email + '<br />' +
-                      'Location: ' + user.attributes.location
-                  );
-
-                  userInfo();
-
-              });
-
+            userInfo();
           },
           error: function(user, error) {
             console.log("User cancelled the Facebook login or did not fully authorize.");
     			}
-  	    });
-      } else {
-        alert('Make a username.');
-      }
+	    });
     }
 
     function fbSignOut() {
       Parse.User.logOut();
-      $('.user-info').hide().html('');
-      userInfo();
     }
     
     userInfo();
-    
+
     //Event Handlers
-    $(".fb-sign-in").click(function () {
-      if ($(this).is('.enabled')) {
+    $("#connect").click(function () {
         fbSignIn();
-      } else {
-        fbSignOut();
-      }
     });
+
+    $("#signout").click(function() {
+      fbSignOut();
+      userInfo();
+    })
 
   };
 

@@ -191,15 +191,35 @@ a:hover {
     background:#555555;
     border-radius:3px;
 }
-
+#userinfo {
+    display: none;
+    margin-top: 20px;
+    color: #fff;
+    font-size: 10px;
+    text-align: left;
+    font-weight: bold;
+    font-family: verdana;
+    width: 200px;
+}
 #connect {
     font-weight: bold;
     color: #fff;
-    font-size: 13px;
+    font-size: 12px;
     text-align: left;
     font-family: verdana;
-    padding-top:10px;
+    text-align: center;
 }
+#signout {
+    display: none;
+    color: #fff;
+    font-family: verdana;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+}
+    #signout:hover {
+        text-decoration: underline;
+    }
 
 #or {
     position:absolute;
