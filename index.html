@@ -17,7 +17,6 @@
       <i class="fa fa-facebook"></i>
       <div id="connect">Connect with Facebook</div>
       <span id="signout" href="#">Sign out</span>
-      <div id="userinfo"></div>
     </div>
       <div id="mainlogin">
         <div id="or">or</div>
@@ -34,6 +33,7 @@
           <span id="passwordreset">Reset password</span>
         </div>
     </div>
+    <div id="userinfo"></div>
   </div>
 
   
@@ -86,8 +86,14 @@
         $("#signout, #userinfo").show();
 
       } else if (user) {
-        $("#logout").show();
+        $("#logout").css('display', 'block');
         $('#username, #password, #note, #mainlogin h1').hide();
+
+        $("#userinfo").html(
+            'Username: ' + user.attributes.username + '<br />' +
+            'Email: ' + user.attributes.email + '<br />' 
+        ).show();
+
       } else {
         $("#connect").text("Connect with Facebook");
         $("#signout, #userinfo").hide();
@@ -118,7 +124,7 @@
 
       Parse.User.logIn(username, password, {
         success: function(user) {
-          $("#logout").show();
+          $("#logout").css('display', 'block');
           $('#username, #password, #note, #mainlogin h1').hide();
         },
         error: function(user, error) {

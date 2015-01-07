@@ -204,7 +204,9 @@ a:hover {
     text-align: left;
     font-weight: bold;
     font-family: verdana;
-    width: 200px;
+    width: 100%;
+    clear: left;
+    padding: 30px 0;
 }
 #connect {
     font-weight: bold;
@@ -223,6 +225,9 @@ a:hover {
     font-weight: bold;
     font-size: 12px;
     text-align: center;
+}
+#logout {
+    padding: 75px 0;
 }
     #signout:hover,
     #logout:hover {
