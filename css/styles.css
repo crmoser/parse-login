@@ -44,54 +44,26 @@ input:focus {
     box-shadow: 0px 0px 5px 1px #161718;
 }
 
-button {
+button,
+#passwordreset {
     background: #ff5f32;
-    border-radius:50%;
-    border:10px solid #222526;
+    border:5px solid #222526;
     font-size:0.9em;
     color:#fff;
     font-weight:bold;
     cursor:pointer;
-    width:85px;
-    height:85px;
-    position:absolute;
-    right: -42px;
-    top: 54px;
+    width:90%;
+    height:50px;
     text-align:center;
-    -webkit-transition:0.5s ease;
-    -moz-transition:0.5s ease;
-    -o-transition:0.5s ease;
-    -ms-transition:0.5s ease;
-    transition:0.5s ease;
+    margin: 0 auto 15px;
+    display: block;
 }
 
-button:hover {
+button:hover,
+#passwordreset:hover {
     background:#222526;
     border-color:#ff5f32;
-    -webkit-transition:0.5s ease;
-    -moz-transition:0.5s ease;
-    -o-transition:0.5s ease;
-    -ms-transition:0.5s ease;
-    transition:0.5s ease;
     }
-
-button i {
-    font-size:20px;
-    -webkit-transition:0.5s ease;
-    -moz-transition:0.5s ease;
-    -o-transition:0.5s ease;
-    -ms-transition:0.5s ease;
-    transition:0.5s ease;
-}
-
-button:hover i {
-    color:#ff5f32;
-    -webkit-transition:0.5s ease;
-    -moz-transition:0.5s ease;
-    -o-transition:0.5s ease;
-    -ms-transition:0.5s ease;
-    transition:0.5s ease;
-}
   
 *:focus {outline:none;}
 ::-webkit-input-placeholder {
@@ -118,61 +90,35 @@ h1
     padding:12px 0px;
 }
 
-<<<<<<< HEAD
-#note
-{
-    color:#88887a;
-=======
-#note,
-#passwordreset {
+#forgot,
+#back {
     color:#fff;
     cursor: pointer;
->>>>>>> 4173ffd43dd05b12a12ff7ab1972c1b370186f6b
     font-size: 0.8em;
     text-align:left;
-    padding-left:5px;
+    padding: 0 0 10px 25px;
+    display: block;
 }
-<<<<<<< HEAD
-=======
-    #note:hover,
-    #passwordreset:hover {
+    #forgot:hover,
+    #back:hover { 
         text-decoration: underline;
     }
->>>>>>> 4173ffd43dd05b12a12ff7ab1972c1b370186f6b
 
-#facebook
-{
+#facebook {
+    display: none;
     text-align:center;
-    float:left;
     background:#365195;
     padding:35px 10px 20px 10px;
-    width:170px;
-    height:135px; 
     border-radius:3px;
     cursor:pointer;
-    box-shadow: 0px 0px 10px 2px #161718; 
-    margin-right:10px;
-    -webkit-transition:0.5s ease;
-    -moz-transition:0.5s ease;
-    -o-transition:0.5s ease;
-    -ms-transition:0.5s ease;
-    transition:0.5s ease;
-}
-
-#facebook:hover
-{
-    box-shadow: 0px 0px 0px 0px #161718;
-    -webkit-transition:0.5s ease;
-    -moz-transition:0.5s ease;
-    -o-transition:0.5s ease;
-    -ms-transition:0.5s ease;
-    transition:0.5s ease;
+    float: left;
+    margin: 30px 15px;
 }
 
 .fa-facebook
 {
     color:#fff;
-    font-size:7em;
+    font-size:3em;
     display:block;
 }
 
@@ -197,13 +143,11 @@ a:hover {
 }
 
 #mainlogin {
-    float:left;
-    width:250px;
-    height:170px;
     padding:10px 15px;
     position:relative;
     background:#555555;
     border-radius:3px;
+    overflow: auto;
 }
 #userinfo {
     display: none;
@@ -213,11 +157,15 @@ a:hover {
     text-align: left;
     font-weight: bold;
     font-family: verdana;
-    width: 100%;
-    clear: left;
-    padding: 30px 0;
+    width: 50%;
+    float: left;
 }
-#connect {
+    #userinfo p {
+        margin: 15px 0;
+        font-size: 12px;
+    }
+#link,
+#unlink {
     font-weight: bold;
     color: #fff;
     font-size: 12px;
@@ -225,23 +173,6 @@ a:hover {
     font-family: verdana;
     text-align: center;
 }
-#signout,
-#logout {
-    color: #fff;
-    cursor: pointer;
-    display: none;
-    font-family: verdana;
-    font-weight: bold;
-    font-size: 12px;
-    text-align: center;
-}
-#logout {
-    padding: 75px 0;
-}
-    #signout:hover,
-    #logout:hover {
-        text-decoration: underline;
-    }
 
 #or {
     position:absolute;

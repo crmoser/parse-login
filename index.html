@@ -1,7 +1,6 @@
 <!doctype html>
 <head>
   <meta charset="utf-8">
-
   <title>Parse Prototype</title>
   <meta name="description" content="My Parse App">
   <meta name="viewport" content="width=device-width">
@@ -13,188 +12,42 @@
 
 <body>
   <div id="loginform">
-    <div id="facebook">
-      <i class="fa fa-facebook"></i>
-      <div id="connect">Connect with Facebook</div>
-      <span id="signout" href="#">Sign out</span>
-    </div>
       <div id="mainlogin">
-        <div id="or">or</div>
-        <h1>Log in with Parse</h1>
+        <h1>Log in to Parse</h1>
+        <div id="userinfo"></div>
+        <div id="facebook">
+          <i class="fa fa-facebook"></i>
+          <div id="link" class="fb-button">Link your Facebook account</div>
+        </div>
         <form action="#">
           <input id="username" type="text" placeholder="email" value="" required>
           <input id="password" type="password" placeholder="password" value="" required>
-          <span id="logout" href="#">Sign out</span>
-          <button type="submit"><i class="fa fa-arrow-right"></i></button>
+          <button id="login" class="login-button" type="submit">Login</button>
         </form>
-        <span id="note">Forgot your password?</span>
+        <span id="forgot">Forgot your password?</span>
         <div id="resetform">
           <input type="text" placeholder="Enter your email address" required>
-          <span id="passwordreset">Reset password</span>
+          <button id="passwordreset">Reset password</button>
+          <span id="back"><< Back</span>
         </div>
     </div>
-    <div id="userinfo"></div>
   </div>
 
-  
   <div id="fb-root"></div>
 
   <script type="text/javascript">
 
-	Parse.initialize("MhsTx95fClaI5CSB7pPqBoC2BPJvOwyIvRQMTCQS", "yZZMGCjCHlIryXe7cRFqkjrZFOTxf4j587H0gAzw");
-
-  window.fbAsyncInit = function() {
-		Parse.FacebookUtils.init({
-			appId      : '642657672506723',
-			status     : true,  
-			cookie     : true,  
-			xfbml      : true,
-			version    : 'v2.2'
-		});
-
-    function userInfo() {
-      var user = Parse.User.current();
-      if (user && user.attributes.authData != undefined) {
-        var fbID = "/" + user.attributes.authData.facebook.id;
-        FB.api(fbID, function(response) {
-            user.set("name", response.name);
-            user.set("username", response.first_name + '.' + response.last_name);
-            user.set("email", response.email);
-            user.set("location", response.location.name); 
-            user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
-            user.save(null, {
-              success: function(user) {
-                console.log("User Saved!");
-              },
-              error: function(user, error) {
-                console.log("Didn't save. Error is " + error);
-              }
-            })
-            
-            $("#userinfo").html(
-                '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
-                'Name: ' + user.attributes.name + '<br />' +
-                'Username: ' + user.attributes.username + '<br />' +
-                'Email: ' + user.attributes.email + '<br />' +
-                'Location: ' + user.attributes.location
-            );
-
-        });
-
-        $("#connect").text("Yay, you're signed in.");
-        $("#signout, #userinfo").show();
-
-      } else if (user) {
-        $("#logout").css('display', 'block');
-        $('#username, #password, #note, #mainlogin h1').hide();
-
-        $("#userinfo").html(
-            'Username: ' + user.attributes.username + '<br />' +
-            'Email: ' + user.attributes.email + '<br />' 
-        ).show();
-
-      } else {
-        $("#connect").text("Connect with Facebook");
-        $("#signout, #userinfo").hide();
-      }
-    }
-  
-    function fbSignIn() {
-        // Make a new Parse user, 'sign in' with FB, and set their info in the Parse.user object.
-        var user = new Parse.User();
-        Parse.FacebookUtils.logIn('email, user_location', {
-    			success: function(user) {
-            userInfo();
-          },
-          error: function(user, error) {
-            alert(error);
-    			}
-	    });
-    }
-
-    function fbSignOut() {
-      Parse.User.logOut();
-      $("#logout").hide();
-    }
-
-    function parseSignIn() {
-      var username = $('#username').val(),
-          password = $('#password').val();
-
-      Parse.User.logIn(username, password, {
-        success: function(user) {
-          $("#logout").css('display', 'block');
-          $('#username, #password, #note, #mainlogin h1').hide();
-        },
-        error: function(user, error) {
-          alert(error.message);
-        }
-      });
-    }
-
-    function parseSignOut() {
-      Parse.User.logOut();
-      $("#logout").hide();
-      $('#username, #password, #note, #mainlogin h1').show();
-    }
-
-    function resetPassword(email) {
-      Parse.User.requestPasswordReset(email, {
-        success: function() {
-          alert("Check your email to reset your password.");
-          $('#username, #password, #note, #mainlogin h1').show();
-          $('#resetform').hide(); 
-        },
-        error: function(error) {
-          // Show the error message somewhere
-          alert("Error: " + error.code + " " + error.message);
-        }
-      });
-    }
-    
-    userInfo();
-
-    //Event Handlers
-    $("#connect").click(function() {
-        fbSignIn();
-    });
-
-    $("#signout").click(function() {
-      fbSignOut();
-      userInfo();
-    });
-
-    $("#mainlogin button").click(function (e) {
-      parseSignIn();
-      e.preventDefault();
-    });
-
-    $("#logout").click(function() {
-      parseSignOut();
-    });
-
-    $("#note").click(function () {
-      $(this).hide();
-      $("#username, #password, #note").hide();
-      $("#resetform").show();
-    });
-
-    $("#passwordreset").click(function () {
-      var email = $("#resetform input").val();
-      resetPassword(email);
-    });
-    
-  };
-
-  (function(d, s, id){
-     var js, fjs = d.getElementsByTagName(s)[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement(s); js.id = id;
-     js.src = "http://connect.facebook.net/en_US/sdk.js";
-     fjs.parentNode.insertBefore(js, fjs);
-   }(document, 'script', 'facebook-jssdk'));
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) {return;}
+       js = d.createElement(s); js.id = id;
+       js.src = "http://connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+     }(document, 'script', 'facebook-jssdk'));
 
   </script>
+
+  <script type="text/javascript" src="js/script.js"></script>
 
 </body>
 
