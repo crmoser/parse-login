@@ -38,7 +38,9 @@ window.fbAsyncInit = function() {
       $("#userinfo").html('');
       var obj = user.attributes;
       Object.keys(obj).forEach(function (key) {
-        $("#userinfo").append('<p>' + key + ' : ' + obj[key] + '</p>').show();
+        if (key != "authData") {
+          $("#userinfo").append('<p>' + key + ' : ' + obj[key] + '</p>').show();
+        }
       });
       $("#facebook").show();
       $('#username, #password, #forgot, #mainlogin h1').hide();
@@ -60,7 +62,7 @@ window.fbAsyncInit = function() {
     Parse.User.requestPasswordReset(email, {
       success: function() {
         alert("Check your email to reset your password.");
-        $('#username, #password, #forgot, #mainlogin h1').show();
+        $('#username, #password, #forgot, #login').show();
         $('#resetform').hide(); 
       },
       error: function(error) {
