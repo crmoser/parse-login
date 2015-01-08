@@ -12,25 +12,24 @@
 
 <body>
   <div id="loginform">
-    <div id="facebook">
-      <i class="fa fa-facebook"></i>
-      <div id="connect">Connect with Facebook</div>
-      <span id="signout" href="#">Sign out</span>
-    </div>
       <div id="mainlogin">
         <h1>Log in to Parse</h1>
+        <div id="userinfo"></div>
+        <div id="facebook">
+          <i class="fa fa-facebook"></i>
+          <div id="link">Link your Facebook account</div>
+          <span id="signout" href="#">Sign out</span>
+        </div>
         <form action="#">
           <input id="username" type="text" placeholder="email" value="" required>
           <input id="password" type="password" placeholder="password" value="" required>
-          <span id="logout" href="#">Sign out</span>
-          <button type="submit"><i class="fa fa-arrow-right"></i></button>
+          <button id="login" type="submit">Login</button>
         </form>
-        <span id="note">Forgot your password?</span>
+        <span id="forgot">Forgot your password?</span>
         <div id="resetform">
           <input type="text" placeholder="Enter your email address" required>
           <span id="passwordreset">Reset password</span>
         </div>
-        <div id="userinfo"></div>
     </div>
   </div>
 
