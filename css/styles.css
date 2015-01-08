@@ -44,7 +44,8 @@ input:focus {
     box-shadow: 0px 0px 5px 1px #161718;
 }
 
-button {
+button,
+#passwordreset {
     background: #ff5f32;
     border:5px solid #222526;
     font-size:0.9em;
@@ -58,7 +59,8 @@ button {
     display: block;
 }
 
-button:hover {
+button:hover,
+#passwordreset:hover {
     background:#222526;
     border-color:#ff5f32;
     }
@@ -89,7 +91,7 @@ h1
 }
 
 #forgot,
-#passwordreset {
+#back {
     color:#fff;
     cursor: pointer;
     font-size: 0.8em;
@@ -98,7 +100,7 @@ h1
     display: block;
 }
     #forgot:hover,
-    #passwordreset:hover {
+    #back:hover { 
         text-decoration: underline;
     }
 
@@ -110,7 +112,7 @@ h1
     border-radius:3px;
     cursor:pointer;
     float: left;
-    margin: 30px 20px;
+    margin: 30px 15px;
 }
 
 .fa-facebook
@@ -162,7 +164,8 @@ a:hover {
         margin: 15px 0;
         font-size: 12px;
     }
-#link {
+#link,
+#unlink {
     font-weight: bold;
     color: #fff;
     font-size: 12px;
@@ -170,18 +173,6 @@ a:hover {
     font-family: verdana;
     text-align: center;
 }
-#signout{
-    color: #fff;
-    cursor: pointer;
-    display: none;
-    font-family: verdana;
-    font-weight: bold;
-    font-size: 20px;
-    text-align: center;
-}
-    #signout:hover{
-        text-decoration: underline;
-    }
 
 #or {
     position:absolute;

@@ -35,6 +35,7 @@ window.fbAsyncInit = function() {
   function updateUser() {
     var user = Parse.User.current();
     if (user) {
+      $("#userinfo").html('');
       var obj = user.attributes;
       Object.keys(obj).forEach(function (key) {
         $("#userinfo").append('<p>' + key + ' : ' + obj[key] + '</p>').show();
@@ -42,33 +43,17 @@ window.fbAsyncInit = function() {
       $("#facebook").show();
       $('#username, #password, #forgot, #mainlogin h1').hide();
       $("#login").attr('id', 'logout').text('Logout');
+      
+      if (Parse.FacebookUtils.isLinked(user)) {
+        $("#link").attr('id', 'unlink').text('Unlink your Facebook account');
+        $(".fa-facebook").hide();
+        $("#facebook").prepend ('<img src=' + obj.profilepic + '/>');
+      } else {
+        $(".fa-facebook").show();
+        $("#facebook img").remove();
+        $("#unlink").text("Link your Facebook account");
+      }
     }
-
-    // if (Parse.FacebookUtils.isLinked) {
-    //     $("#userinfo").html(
-    //         '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
-    //         'Name: ' + user.attributes.name + '<br />' +
-    //         'Username: ' + user.attributes.username + '<br />' +
-    //         'Email: ' + user.attributes.email + '<br />' +
-    //         'Location: ' + user.attributes.location
-    //     );
-
-    //   $("#link").text("Yay, your accounts are linked.");
-    //   $("#signout, #userinfo").show();
-
-    // } else if (user) {
-    //   $("#logout, #facebook").css('display', 'block');
-    //   $('#username, #password, #forgot, #mainlogin h1').hide();
-
-    //   $("#userinfo").html(
-    //       'Username: ' + user.attributes.username + '<br />' +
-    //       'Email: ' + user.attributes.email + '<br />' 
-    //   ).show();
-
-    // } else {
-    //   $("#link").text("Connect with Facebook");
-    //   $("#signout, #userinfo").hide();
-    // }
   }
 
   function resetPassword(email) {
@@ -86,16 +71,6 @@ window.fbAsyncInit = function() {
   }
 
   function linkFB() {
-    // Make a new Parse user, 'sign in' with FB, and set their info in the Parse.user object.
-   //  var user = new Parse.User();
-   //  Parse.FacebookUtils.logIn('email, user_location', {
-			// success: function(user) {
-   //      updateUser();
-   //    },
-   //    error: function(user, error) {
-   //      alert(error.message);
-			// }
-    // });
     
     var user = Parse.User.current();
 
@@ -110,16 +85,7 @@ window.fbAsyncInit = function() {
               user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
               user.save(null, {
                 success: function(user) {
-                  console.log("User Saved!");
-                  
-                  $("#userinfo").html(
-                      '<img src=' + user.attributes.profilepic + '/>' + '<br />' +
-                      'Name: ' + user.attributes.name + '<br />' +
-                      'Username: ' + user.attributes.username + '<br />' +
-                      'Email: ' + user.attributes.email + '<br />' +
-                      'Location: ' + user.attributes.location
-                  );
-
+                  updateUser();
                 },
                 error: function(user, error) {
                   alert(error.message);
@@ -140,9 +106,17 @@ window.fbAsyncInit = function() {
     var user = Parse.User.current();
     Parse.FacebookUtils.unlink(user, {
       success: function(user) {
-        alert("The user is no longer associated with their Facebook account.");
-        $("#link").text("Link your Facebook account");
-        $("#signout").hide();
+        user.unset("name");
+        user.unset("location"); 
+        user.unset("profilepic");
+        user.save(null, {
+          success: function(user) {
+            updateUser();
+          },
+          error: function(user, error) {
+            console.log(error.message);
+          }
+        });
       }
     });
   }
@@ -150,16 +124,8 @@ window.fbAsyncInit = function() {
   updateUser();
 
   //Event Handlers
-  $("#link").click(function() {
-      linkFB();
-  });
 
-  $("#signout").click(function() {
-    unlinkFB();
-    updateUser();
-  });
-
-  $("button").on('click', function (e) {
+  $(".login-button").on('click', function (e) {
     if ($(this).attr('id') === 'login') {
       login();
     } else {
@@ -168,15 +134,28 @@ window.fbAsyncInit = function() {
     e.preventDefault();
   });
 
+  $(".fb-button").on('click', function() {
+    if ($(this).attr('id') === 'link') {
+      linkFB();
+    } else {
+      unlinkFB();
+    }
+  })
+
   $("#forgot").click(function () {
     $(this).hide();
-    $("#username, #password, #forgot").hide();
+    $("#username, #password, #forgot, #login").hide();
     $("#resetform").show();
   });
 
   $("#passwordreset").click(function () {
     var email = $("#resetform input").val();
     resetPassword(email);
+  });
+
+  $("#back").click(function () {
+    $("#username, #password, #forgot, #login").show();
+    $("#resetform").hide();
   });
 
 };
