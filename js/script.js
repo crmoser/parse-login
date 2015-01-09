@@ -16,12 +16,27 @@ window.fbAsyncInit = function() {
 
     Parse.User.logIn(username, password, {
       success: function(user) {
-        updateUser();
+        checkNewUser(username);
       },
       error: function(user, error) {
         alert(error.message);
       }
     });
+  }
+
+  function checkNewUser(username) {
+    var user = Parse.User.current();
+    if (user) {
+      var isNew = user.attributes.isNew;
+      if (isNew) {
+        alert("Noob. Make a new password right meow.");
+        $("#username, #password, #forgot, #login").hide();
+        $("#resetform").show();
+        $("#resetform input").val(username);
+      } else {
+        updateUser();
+      }
+    }
   }
 
   function logout() {
@@ -59,15 +74,26 @@ window.fbAsyncInit = function() {
   }
 
   function resetPassword(email) {
+    var user = Parse.User.current();
     Parse.User.requestPasswordReset(email, {
       success: function() {
-        alert("Check your email to reset your password.");
-        $('#username, #password, #forgot, #login').show();
-        $('#resetform').hide(); 
+        user.set("isNew", false);
+        user.save(null, {
+          success: function(user) {
+            alert("Check your email to reset your password.");
+            $('#username, #password, #forgot, #login').show();
+            $('#resetform').hide();
+            logout();
+          },
+          error: function(user, error) {
+            alert(error.message);
+            logout();
+          }
+        });
       },
       error: function(error) {
-        // Show the error message somewhere
         alert(error.message);
+        logout();
       }
     });
   }
@@ -142,7 +168,7 @@ window.fbAsyncInit = function() {
     } else {
       unlinkFB();
     }
-  })
+  });
 
   $("#forgot").click(function () {
     $(this).hide();
