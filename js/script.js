@@ -16,7 +16,8 @@ window.fbAsyncInit = function() {
 
     Parse.User.logIn(username, password, {
       success: function(user) {
-        checkNewUser(username);
+        //checkNewUser(username);
+        updateUser();
       },
       error: function(user, error) {
         alert(error.message);
@@ -37,6 +38,46 @@ window.fbAsyncInit = function() {
         updateUser();
       }
     }
+  }
+
+  function queryUser(username) {
+    var query = new Parse.Query(Parse.User);
+    query.equalTo("email", username);
+    query.find({
+      success: function(username) {
+        var newUser = username[0];
+        var isNew = username[0].attributes.isNew;
+        if (isNew) {
+          alert("Looks like it's your first time logging in. Make up a password bro.");
+          $("#password, #confirm").show();
+          $("#check").attr("id", "change");
+        }
+      }
+    });
+  }
+
+  function setPassword(username) {
+    var query = new Parse.Query(Parse.User);
+    query.equalTo("email", username);
+    query.find({
+      success: function(username) {
+        var password = $("#password").val();
+        var user = username[0];
+        if (user) {
+          user.set("password", password);
+          user.set("isNew", false);
+          user.save(null, {
+          success: function(user) {
+            login();
+          },
+          error: function(user, error) {
+            alert(error.message);
+            logout();
+          }
+        });
+        }
+      }
+    });
   }
 
   function logout() {
@@ -153,11 +194,28 @@ window.fbAsyncInit = function() {
 
   //Event Handlers
 
-  $(".login-button").on('click', function (e) {
-    if ($(this).attr('id') === 'login') {
-      login();
+  $("#change").on('click', function (e) {
+    var password = $("#password").val();
+    var confirm = $("#confirm").val();
+    var username = $("username").val();
+    if (password === confirm) {
+      setPassword(username);
     } else {
+      alert("Your passwords don't match dummy.");
+    }
+  });
+
+  $(".login-button").on('click', function (e) {
+    var id = $(this).attr('id');
+    var username = $("#username").val();
+    if (id === 'login') {
+      login();
+    } else if (id === 'logout') {
       logout();
+    } else if (id === 'check') {
+      queryUser(username);
+    } else {
+      
     }
     e.preventDefault();
   });
