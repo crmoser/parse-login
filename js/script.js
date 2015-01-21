@@ -11,7 +11,7 @@ window.fbAsyncInit = function() {
 	});
 
   function login() {
-    var username = $('#username').val(),
+    var username = $('#email').val(),
         password = $('#password').val();
 
     Parse.User.logIn(username, password, {
@@ -31,7 +31,7 @@ window.fbAsyncInit = function() {
       var isNew = user.attributes.isNew;
       if (isNew) {
         alert("Noob. Make a new password right meow.");
-        $("#username, #password, #forgot, #login").hide();
+        $("#email, #password, #forgot, #login").hide();
         $("#resetform").show();
         $("#resetform input").val(username);
       } else {
@@ -98,7 +98,7 @@ window.fbAsyncInit = function() {
   function logout() {
     Parse.User.logOut();
     $("#facebook").hide();
-    $('#username, #password, #forgot, #mainlogin h1').show();
+    $('#email, #password, #forgot, h1').show();
     $("#userinfo").html('');
     $("#logout").attr('id', 'login').text('Login');
   }
@@ -114,15 +114,13 @@ window.fbAsyncInit = function() {
         }
       });
       $("#facebook").show();
-      $('#username, #password, #forgot, #mainlogin h1').hide();
+      $('#email, #password, #forgot, h1').hide();
       $("#login").attr('id', 'logout').text('Logout');
       
       if (Parse.FacebookUtils.isLinked(user)) {
         $("#link").attr('id', 'unlink').text('Unlink your Facebook account');
-        $(".fa-facebook").hide();
         $("#facebook").prepend ('<img src=' + obj.profilepic + '/>');
       } else {
-        $(".fa-facebook").show();
         $("#facebook img").remove();
         $("#unlink").text("Link your Facebook account");
       }
@@ -137,7 +135,7 @@ window.fbAsyncInit = function() {
         user.save(null, {
           success: function(user) {
             alert("Check your email to reset your password.");
-            $('#username, #password, #forgot, #login').show();
+            $('#email, #password, #forgot, #login').show();
             $('#resetform').hide();
             logout();
           },
@@ -211,7 +209,7 @@ window.fbAsyncInit = function() {
 
   $(".login-button").on('click', function (e) {
     var id = $(this).attr('id');
-    var username = $("#username").val();
+    var username = $("#email").val();
     var password = $("#password").val();
     var confirm = $("#confirm").val();
 
@@ -241,7 +239,7 @@ window.fbAsyncInit = function() {
 
   $("#forgot").click(function () {
     $(this).hide();
-    $("#username, #password, #forgot, #login").hide();
+    $("#email, #password, #forgot, #login").hide();
     $("#resetform").show();
   });
 
@@ -251,7 +249,7 @@ window.fbAsyncInit = function() {
   });
 
   $("#back").click(function () {
-    $("#username, #password, #forgot, #login").show();
+    $("#email, #password, #forgot, #login").show();
     $("#resetform").hide();
   });
 
