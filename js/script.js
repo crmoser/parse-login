@@ -51,6 +51,10 @@ window.fbAsyncInit = function() {
           alert("Looks like it's your first time logging in. Make up a password bro.");
           $("#password, #confirm").show();
           $("#check").attr("id", "change");
+        } else {
+          alert("Looks like you've logged in before. Enter your password brah.");
+          $("#password").show();
+          $("#check").attr("id", "login");
         }
       }
     });
@@ -62,10 +66,16 @@ window.fbAsyncInit = function() {
     query.find({
       success: function(username) {
         var password = $("#password").val();
+        var confirm = $("#confirm").val();
         var user = username[0];
-        if (user) {
+
+        if (user && (password === confirm)) {
           user.set("password", password);
           user.set("isNew", false);
+          
+          // Need to do some shit here. Parse.User.signUp probably. Make a new user if the isNew flag in the DB
+          // for the email entered is true. If it's not true, then fucking sign in like normal.
+
           user.save(null, {
           success: function(user) {
             login();
@@ -75,7 +85,12 @@ window.fbAsyncInit = function() {
             logout();
           }
         });
+        } else {
+          alert("Your passwords don't match dummy.");
         }
+      },
+      error: function(error) {
+        alert(error.message);
       }
     });
   }
@@ -194,28 +209,24 @@ window.fbAsyncInit = function() {
 
   //Event Handlers
 
-  $("#change").on('click', function (e) {
-    var password = $("#password").val();
-    var confirm = $("#confirm").val();
-    var username = $("username").val();
-    if (password === confirm) {
-      setPassword(username);
-    } else {
-      alert("Your passwords don't match dummy.");
-    }
-  });
-
   $(".login-button").on('click', function (e) {
     var id = $(this).attr('id');
     var username = $("#username").val();
-    if (id === 'login') {
-      login();
-    } else if (id === 'logout') {
-      logout();
-    } else if (id === 'check') {
-      queryUser(username);
-    } else {
-      
+    var password = $("#password").val();
+    var confirm = $("#confirm").val();
+
+    switch (id) {
+      case 'login':
+        login();
+        break;
+      case 'logout':
+        logout();
+        break;
+      case 'check':
+        queryUser(username);
+        break
+      case 'change':
+        setPassword(username);
     }
     e.preventDefault();
   });
