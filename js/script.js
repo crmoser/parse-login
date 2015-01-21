@@ -10,6 +10,72 @@ window.fbAsyncInit = function() {
 		version    : 'v2.2'
 	});
 
+  function passwordsMatch() {
+    var password = $("#password").val(),
+        confirm = $("#confirm").val();
+    if (password != "" && confirm != "" && (password === confirm)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function validateEmail(email) { 
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+
+  function errorMessaging (emailOk, passwordsDoMatch) {
+    if (!emailOk && !passwordsDoMatch) {
+      alert('All the fields are wrong');
+    } else if (!emailOk) {
+      alert('Enter a valid email.');
+    } else if (!passwordsDoMatch) {
+      alert('Your passwords must match.');
+    }
+  } 
+
+  function signup(email) {
+    var passwordsDoMatch = passwordsMatch(),
+        emailOk = validateEmail(email),
+        password = $("#password").val(),
+        query = new Parse.Query(Parse.User);
+
+    if (passwordsDoMatch && emailOk) {
+      query.equalTo("approvedEmail", email);
+      query.first({
+        success: function(user) {
+          // If the email entered matches a result in the database - that means the admin has approved their application - create a new user.
+          if (user) {
+            var user = new Parse.User();
+            user.set("username", email);
+            user.set("password", password);
+            user.set("email", email);
+             
+            user.signUp(null, {
+              success: function(user) {
+                alert("You're signed up!");
+              },
+              error: function(user, error) {
+                // Show the error message somewhere and let the user try again.
+                alert("Error: " + error.code + " " + error.message);
+              }
+            });
+
+          } else {
+            alert("No account with that email exists.")
+          }
+        },
+        error: function(error) {
+          //Only fires if the query fails!! Not if it doesn't find a match. Lame.
+          alert(error.message);
+        }
+      });
+    } else {
+      errorMessaging(emailOk, passwordsDoMatch);
+    }
+  }
+
   function login() {
     var username = $('#email').val(),
         password = $('#password').val();
@@ -31,7 +97,7 @@ window.fbAsyncInit = function() {
       var isNew = user.attributes.isNew;
       if (isNew) {
         alert("Noob. Make a new password right meow.");
-        $("#email, #password, #forgot, #login").hide();
+        $("#email, #password, #forgot, #form").hide();
         $("#resetform").show();
         $("#resetform input").val(username);
       } else {
@@ -40,64 +106,8 @@ window.fbAsyncInit = function() {
     }
   }
 
-  function queryUser(username) {
-    var query = new Parse.Query(Parse.User);
-    query.equalTo("email", username);
-    query.find({
-      success: function(username) {
-        var newUser = username[0];
-        var isNew = username[0].attributes.isNew;
-        if (isNew) {
-          alert("Looks like it's your first time logging in. Make up a password bro.");
-          $("#password, #confirm").show();
-          $("#check").attr("id", "change");
-        } else {
-          alert("Looks like you've logged in before. Enter your password brah.");
-          $("#password").show();
-          $("#check").attr("id", "login");
-        }
-      }
-    });
-  }
-
-  function setPassword(username) {
-    var query = new Parse.Query(Parse.User);
-    query.equalTo("email", username);
-    query.find({
-      success: function(username) {
-        var password = $("#password").val();
-        var confirm = $("#confirm").val();
-        var user = username[0];
-
-        if (user && (password === confirm)) {
-          user.set("password", password);
-          user.set("isNew", false);
-          
-          // Need to do some shit here. Parse.User.signUp probably. Make a new user if the isNew flag in the DB
-          // for the email entered is true. If it's not true, then fucking sign in like normal.
-
-          user.save(null, {
-          success: function(user) {
-            login();
-          },
-          error: function(user, error) {
-            alert(error.message);
-            logout();
-          }
-        });
-        } else {
-          alert("Your passwords don't match dummy.");
-        }
-      },
-      error: function(error) {
-        alert(error.message);
-      }
-    });
-  }
-
   function logout() {
     Parse.User.logOut();
-    $("#facebook").hide();
     $('#email, #password, #forgot, h1').show();
     $("#userinfo").html('');
     $("#logout").attr('id', 'login').text('Login');
@@ -109,13 +119,10 @@ window.fbAsyncInit = function() {
       $("#userinfo").html('');
       var obj = user.attributes;
       Object.keys(obj).forEach(function (key) {
-        if (key != "authData") {
-          $("#userinfo").append('<p>' + key + ' : ' + obj[key] + '</p>').show();
-        }
+        $("#userinfo").append('<p>' + key + ' : ' + obj[key] + '</p>').show();
       });
-      $("#facebook").show();
-      $('#email, #password, #forgot, h1').hide();
-      $("#login").attr('id', 'logout').text('Logout');
+
+      $('form, #facebook, #forgot, h1, h1+p').hide();
       
       if (Parse.FacebookUtils.isLinked(user)) {
         $("#link").attr('id', 'unlink').text('Unlink your Facebook account');
@@ -135,7 +142,7 @@ window.fbAsyncInit = function() {
         user.save(null, {
           success: function(user) {
             alert("Check your email to reset your password.");
-            $('#email, #password, #forgot, #login').show();
+            $('#email, #password, #forgot, #form').show();
             $('#resetform').hide();
             logout();
           },
@@ -207,9 +214,9 @@ window.fbAsyncInit = function() {
 
   //Event Handlers
 
-  $(".login-button").on('click', function (e) {
+  $(".submit").on('click', function (e) {
     var id = $(this).attr('id');
-    var username = $("#email").val();
+    var email = $("#email").val();
     var password = $("#password").val();
     var confirm = $("#confirm").val();
 
@@ -221,10 +228,10 @@ window.fbAsyncInit = function() {
         logout();
         break;
       case 'check':
-        queryUser(username);
+        //queryUser(email);
         break
-      case 'change':
-        setPassword(username);
+      case 'signup':
+        signup(email);
     }
     e.preventDefault();
   });
@@ -239,7 +246,7 @@ window.fbAsyncInit = function() {
 
   $("#forgot").click(function () {
     $(this).hide();
-    $("#email, #password, #forgot, #login").hide();
+    $("#email, #password, #forgot, #form").hide();
     $("#resetform").show();
   });
 
@@ -249,7 +256,7 @@ window.fbAsyncInit = function() {
   });
 
   $("#back").click(function () {
-    $("#email, #password, #forgot, #login").show();
+    $("#email, #password, #forgot, #form").show();
     $("#resetform").hide();
   });
 
