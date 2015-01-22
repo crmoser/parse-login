@@ -1,0 +1,116 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+
+@import "compass/reset";
+* {
+    margin:0px;
+    padding:0px;
+    box-sizing: border-box;
+}
+/** Fonts **/
+$font-stack: Helvetica, Arial, sans-serif;
+
+/** Font Sizes **/
+$lrg: 48px;
+$med: 24px;
+$sm: 20px;
+
+/** Line Heights **/
+$tall: 30px;
+$grande: 36px;
+
+/** Colors **/
+$white: #fff;
+$dark-gray: #333;
+$med-gray: #717171;
+$light-gray: #b5b5b5;
+$blue: #3d5b9a;
+
+body {
+    background: $white;
+    font-family: $font-stack;
+}
+h1 {
+	color: $dark-gray;
+	font-size: $lrg;
+	line-height: $grande;
+}
+p,
+label {
+	color: $light-gray;
+	font-size: $sm;
+	line-height: $tall;
+	display: block;
+}
+	p {
+		padding: 25px 0;
+	}
+	label {
+		padding: 0 0 20px 10px;
+	}
+	label,
+	form {
+		text-align: left;
+	}
+form,
+#resetform {
+	width: 50%;
+	margin: 0 auto;
+}
+label, 
+input,
+button {
+	width: 100%;
+}
+a {
+	color: $blue;
+	cursor: pointer;
+}
+	a:hover {
+		text-decoration: underline;
+	}
+.field {
+	border-radius: 5px;
+	padding: 15px 10px;
+	margin: 0 0 20px 0;
+	border: 1px solid $light-gray;
+	color: $med-gray;
+	font-size: $sm;
+	line-height: $tall;
+}
+.btn {
+	background: $blue;
+	border-radius: 5px;
+	color: $white;
+	font-size: $med;
+	line-height: $tall;
+	border: 0;
+	padding: 20px 30px;
+	margin: 0 0 35px 0;
+	cursor: pointer;
+}
+#form {
+	text-align: center;
+	max-width: 880px;
+	height: auto;
+	margin: 0 auto;
+	padding: 70px 0;
+}
+#confirm,
+#resetform {
+	display: none;
+}
+	.signup {
+		#confirm {
+			display: block;
+		}
+		#forgot {
+			display: none;
+		}
+
+	}
+#facebook {
+	width: auto;
+}

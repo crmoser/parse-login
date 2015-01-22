@@ -14,8 +14,8 @@
 </head>
 
 <body>
-  <div id="form">
-      <h1>Login</h1>
+  <div id="form" class="signup">
+      <h1>Create Your Account</h1>
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel lorem accumsan, finibus lacus et, dapibus sapien. Vestibulum posuere facilisis ante quis commodo.</p>
       <div id="userinfo"></div>
       <button id="facebook" class="btn">Login With Facebook</button>
@@ -25,8 +25,8 @@
         <label for="password">Password</label>
         <input id="password" class="field" type="password" placeholder="password" value="" required>
         <label for="confirm">Confirm Password</label>
-        <input id="confirm" class="field" type="password" placeholder="confirm password" value="" required>
-        <button id="check" class="submit btn">Login</button>
+        <input id="confirm" class="field" type="password" placeholder="confirm password" value="">
+        <button id="signup" class="submit btn">Login</button>
       </form>
       <a id="forgot">Forgot your password?</a>
       <div id="resetform">
@@ -39,7 +39,6 @@
   <div id="fb-root"></div>
 
   <script type="text/javascript">
-
     (function(d, s, id){
        var js, fjs = d.getElementsByTagName(s)[0];
        if (d.getElementById(id)) {return;}
@@ -47,7 +46,6 @@
        js.src = "http://connect.facebook.net/en_US/sdk.js";
        fjs.parentNode.insertBefore(js, fjs);
      }(document, 'script', 'facebook-jssdk'));
-
   </script>
 
   <script type="text/javascript" src="js/script.js"></script>
