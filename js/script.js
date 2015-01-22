@@ -35,42 +35,32 @@ window.fbAsyncInit = function() {
     }
   } 
 
-  function signup(email) {
+  function signup() {
     var passwordsDoMatch = passwordsMatch(),
+        email = $("#email").val(),
         emailOk = validateEmail(email),
         password = $("#password").val(),
-        query = new Parse.Query(Parse.User);
+        username = $("#name").val();
 
     if (passwordsDoMatch && emailOk) {
-      query.equalTo("approvedEmail", email);
-      query.first({
-        success: function(user) {
-          // If the email entered matches a result in the database - that means the admin has approved their application - create a new user.
-          if (user) {
-            var user = new Parse.User();
-            user.set("username", email);
-            user.set("password", password);
-            user.set("email", email);
-             
-            user.signUp(null, {
-              success: function(user) {
-                alert("You're signed up!");
-              },
-              error: function(user, error) {
-                // Show the error message somewhere and let the user try again.
-                alert("Error: " + error.code + " " + error.message);
-              }
-            });
 
+      Parse.Cloud.run('updateUser', {
+        email : email,
+        password : password,
+        username : username
+        }, {
+        success: function(result) {
+          if (result) {
+            console.log(result)
           } else {
-            alert("No account with that email exists.")
+            alert('No account with that email address found.');
           }
         },
         error: function(error) {
-          //Only fires if the query fails!! Not if it doesn't find a match. Lame.
-          alert(error.message);
+         console.log(error);
         }
       });
+
     } else {
       errorMessaging(emailOk, passwordsDoMatch);
     }
@@ -82,62 +72,13 @@ window.fbAsyncInit = function() {
 
     Parse.User.logIn(username, password, {
       success: function(user) {
-        //checkNewUser(username);
-        updateUser();
+        updateUserInfo();
       },
       error: function(user, error) {
         alert(error.message);
       }
     });
   }
-
-function loginWithFacebook() {
-  Parse.FacebookUtils.logIn("user_likes,email", {
-    success: function(user) {
-      if (!user.existed()) {
-        alert("User signed up and logged in through Facebook!");
-        var fbID = "/" + user.attributes.authData.facebook.id;
-
-        FB.api(fbID, function(response) {
-
-            var query = new Parse.Query(Parse.User);
-            query.equalTo("email", response.email);
-            query.first({
-              success: function(user) {
-                // If the email entered matches a result in the database - that means the admin has approved their application - create a new user.
-                if (user) {
-
-                } else {
-                  alert("No account with that email exists.")
-                }
-              },
-              error: function(error) {
-                //Only fires if the query fails!! Not if it doesn't find a match. Lame.
-                alert(error.message);
-              }
-            });
-
-            // user.set("name", response.name);
-            // user.set("location", response.location.name); 
-            // user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
-            // user.save(null, {
-            //   success: function(user) {
-            //     //updateUser();
-            //   },
-            //   error: function(user, error) {
-            //     alert(error.message);
-            //   }
-            // });
-        });
-      } else {
-        alert("User logged in through Facebook!");
-      }
-    },
-    error: function(user, error) {
-      alert("User cancelled the Facebook login or did not fully authorize.");
-    }
-  });
-}
 
   function logout() {
     Parse.User.logOut();
@@ -146,7 +87,7 @@ function loginWithFacebook() {
     $("#logout").attr('id', 'login').text('Login');
   }
 
-  function updateUser() {
+  function updateUserInfo() {
     var user = Parse.User.current();
     if (user) {
       $("#userinfo").html('');
@@ -155,7 +96,7 @@ function loginWithFacebook() {
         $("#userinfo").append('<p>' + key + ' : ' + obj[key] + '</p>').show();
       });
 
-      $('form, #facebook, #forgot, h1, h1+p').hide();
+      $('form, #forgot, h1, h1+p').hide();
       
       if (Parse.FacebookUtils.isLinked(user)) {
         $("#link").attr('id', 'unlink').text('Unlink your Facebook account');
@@ -207,7 +148,7 @@ function loginWithFacebook() {
               user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
               user.save(null, {
                 success: function(user) {
-                  updateUser();
+                  updateUserInfo();
                 },
                 error: function(user, error) {
                   alert(error.message);
@@ -233,7 +174,7 @@ function loginWithFacebook() {
         user.unset("profilepic");
         user.save(null, {
           success: function(user) {
-            updateUser();
+            updateUserInfo();
           },
           error: function(user, error) {
             console.log(error.message);
@@ -243,15 +184,12 @@ function loginWithFacebook() {
     });
   }
   
-  updateUser();
+  updateUserInfo();
 
   //Event Handlers
 
   $(".submit").on('click', function (e) {
     var id = $(this).attr('id');
-    var email = $("#email").val();
-    var password = $("#password").val();
-    var confirm = $("#confirm").val();
 
     switch (id) {
       case 'login':
@@ -260,17 +198,10 @@ function loginWithFacebook() {
       case 'logout':
         logout();
         break;
-      case 'check':
-        //queryUser(email);
-        break
       case 'signup':
-        signup(email);
+        signup();
     }
     e.preventDefault();
-  });
-
-  $("#facebook").on('click', function() {
-    loginWithFacebook();
   });
 
   $("#forgot").click(function () {
