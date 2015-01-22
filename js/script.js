@@ -80,9 +80,7 @@ window.fbAsyncInit = function() {
 
   function logout() {
     Parse.User.logOut();
-    $('form, #forgot, h1, h1+p').show();
-    $("#logout").hide();
-    $("#userinfo").html('');
+    location.replace(location.origin);
   }
 
   function updateUserInfo() {
