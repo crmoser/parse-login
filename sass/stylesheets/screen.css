@@ -190,6 +190,7 @@ a:hover {
 }
 
 /* line 114, ../sass/screen.scss */
-#facebook {
+#logout {
+  display: none;
   width: auto;
 }

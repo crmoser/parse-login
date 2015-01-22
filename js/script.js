@@ -51,7 +51,7 @@ window.fbAsyncInit = function() {
         }, {
         success: function(result) {
           if (result) {
-            console.log(result)
+            login(username, password);
           } else {
             alert('No account with that email address found.');
           }
@@ -66,25 +66,23 @@ window.fbAsyncInit = function() {
     }
   }
 
-  function login() {
-    var username = $('#email').val(),
-        password = $('#password').val();
-
+  function login(username, password) {
     Parse.User.logIn(username, password, {
       success: function(user) {
         updateUserInfo();
+        $("#logout").show();
       },
       error: function(user, error) {
-        alert(error.message);
+        console.log(error + ' ' + error.message);
       }
     });
   }
 
   function logout() {
     Parse.User.logOut();
-    $('#email, #password, #forgot, h1').show();
+    $('form, #forgot, h1, h1+p').show();
+    $("#logout").hide();
     $("#userinfo").html('');
-    $("#logout").attr('id', 'login').text('Login');
   }
 
   function updateUserInfo() {
@@ -97,7 +95,8 @@ window.fbAsyncInit = function() {
       });
 
       $('form, #forgot, h1, h1+p').hide();
-      
+      $("#logout").show();
+
       if (Parse.FacebookUtils.isLinked(user)) {
         $("#link").attr('id', 'unlink').text('Unlink your Facebook account');
         $("#facebook").prepend ('<img src=' + obj.profilepic + '/>');
@@ -109,26 +108,15 @@ window.fbAsyncInit = function() {
   }
 
   function resetPassword(email) {
-    var user = Parse.User.current();
     Parse.User.requestPasswordReset(email, {
       success: function() {
-        user.set("isNew", false);
-        user.save(null, {
-          success: function(user) {
-            alert("Check your email to reset your password.");
-            $('#email, #password, #forgot, #form').show();
-            $('#resetform').hide();
-            logout();
-          },
-          error: function(user, error) {
-            alert(error.message);
-            logout();
-          }
-        });
+        alert('Check your email to reset your password.');
+        $("form").show();
+        $("#resetform").hide();
       },
       error: function(error) {
-        alert(error.message);
-        logout();
+        // Show the error message somewhere
+        alert("Error: " + error.code + " " + error.message);
       }
     });
   }
@@ -189,24 +177,27 @@ window.fbAsyncInit = function() {
   //Event Handlers
 
   $(".submit").on('click', function (e) {
-    var id = $(this).attr('id');
+    var id = $(this).attr('id'),
+        username = $("#name").val(),
+        password = $("#password").val();
 
     switch (id) {
       case 'login':
-        login();
+        login(username, password);
         break;
       case 'logout':
         logout();
         break;
       case 'signup':
         signup();
+        break;
     }
     e.preventDefault();
   });
 
   $("#forgot").click(function () {
     $(this).hide();
-    $("#email, #password, #forgot, #form").hide();
+    $("form").hide();
     $("#resetform").show();
   });
 
