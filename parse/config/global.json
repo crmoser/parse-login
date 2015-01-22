@@ -1,0 +1,11 @@
+{
+    "applications": {
+        "Parse Protoype": {
+            "applicationId": "MhsTx95fClaI5CSB7pPqBoC2BPJvOwyIvRQMTCQS", 
+            "masterKey": "ZU3BrRz5ePm3DprOAOIgcKZmr4KP8mkP2NH34lhF"
+        }, 
+        "_default": {
+            "link": "Parse Protoype"
+        }
+    }
+}

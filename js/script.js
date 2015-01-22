@@ -82,7 +82,6 @@ window.fbAsyncInit = function() {
 
     Parse.User.logIn(username, password, {
       success: function(user) {
-        //checkNewUser(username);
         updateUser();
       },
       error: function(user, error) {
@@ -90,54 +89,6 @@ window.fbAsyncInit = function() {
       }
     });
   }
-
-function loginWithFacebook() {
-  Parse.FacebookUtils.logIn("user_likes,email", {
-    success: function(user) {
-      if (!user.existed()) {
-        alert("User signed up and logged in through Facebook!");
-        var fbID = "/" + user.attributes.authData.facebook.id;
-
-        FB.api(fbID, function(response) {
-
-            var query = new Parse.Query(Parse.User);
-            query.equalTo("email", response.email);
-            query.first({
-              success: function(user) {
-                // If the email entered matches a result in the database - that means the admin has approved their application - create a new user.
-                if (user) {
-
-                } else {
-                  alert("No account with that email exists.")
-                }
-              },
-              error: function(error) {
-                //Only fires if the query fails!! Not if it doesn't find a match. Lame.
-                alert(error.message);
-              }
-            });
-
-            // user.set("name", response.name);
-            // user.set("location", response.location.name); 
-            // user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
-            // user.save(null, {
-            //   success: function(user) {
-            //     //updateUser();
-            //   },
-            //   error: function(user, error) {
-            //     alert(error.message);
-            //   }
-            // });
-        });
-      } else {
-        alert("User logged in through Facebook!");
-      }
-    },
-    error: function(user, error) {
-      alert("User cancelled the Facebook login or did not fully authorize.");
-    }
-  });
-}
 
   function logout() {
     Parse.User.logOut();
@@ -155,7 +106,7 @@ function loginWithFacebook() {
         $("#userinfo").append('<p>' + key + ' : ' + obj[key] + '</p>').show();
       });
 
-      $('form, #facebook, #forgot, h1, h1+p').hide();
+      $('form, #forgot, h1, h1+p').hide();
       
       if (Parse.FacebookUtils.isLinked(user)) {
         $("#link").attr('id', 'unlink').text('Unlink your Facebook account');
@@ -260,9 +211,6 @@ function loginWithFacebook() {
       case 'logout':
         logout();
         break;
-      case 'check':
-        //queryUser(email);
-        break
       case 'signup':
         signup(email);
     }
