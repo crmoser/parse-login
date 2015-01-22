@@ -35,30 +35,26 @@ window.fbAsyncInit = function() {
     }
   } 
 
-  function signup(email) {
+  function signup() {
     var passwordsDoMatch = passwordsMatch(),
+        email = $("#email").val(),
         emailOk = validateEmail(email),
-        password = $("#password").val();
+        password = $("#password").val(),
+        username = $("#name").val();
 
     if (passwordsDoMatch && emailOk) {
 
-      Parse.Cloud.run('deleteUser', {email : email}, {
+      Parse.Cloud.run('updateUser', {
+        email : email,
+        password : password,
+        username : username
+        }, {
         success: function(result) {
-          console.log(result);
-          // var user = new Parse.User();
-          // user.set("username", email);
-          // user.set("password", password);
-          // user.set("email", email);
-           
-          // user.signUp(null, {
-          //   success: function(user) {
-          //     alert("You're signed up!");
-          //   },
-          //   error: function(user, error) {
-          //     // Show the error message somewhere and let the user try again.
-          //     alert("Error: " + error.code + " " + error.message);
-          //   }
-          // });
+          if (result) {
+            console.log(result)
+          } else {
+            alert('No account with that email address found.');
+          }
         },
         error: function(error) {
          console.log(error);
@@ -76,7 +72,7 @@ window.fbAsyncInit = function() {
 
     Parse.User.logIn(username, password, {
       success: function(user) {
-        updateUser();
+        updateUserInfo();
       },
       error: function(user, error) {
         alert(error.message);
@@ -91,7 +87,7 @@ window.fbAsyncInit = function() {
     $("#logout").attr('id', 'login').text('Login');
   }
 
-  function updateUser() {
+  function updateUserInfo() {
     var user = Parse.User.current();
     if (user) {
       $("#userinfo").html('');
@@ -152,7 +148,7 @@ window.fbAsyncInit = function() {
               user.set("profilepic", "http://graph.facebook.com/" + response.id + "/picture");
               user.save(null, {
                 success: function(user) {
-                  updateUser();
+                  updateUserInfo();
                 },
                 error: function(user, error) {
                   alert(error.message);
@@ -178,7 +174,7 @@ window.fbAsyncInit = function() {
         user.unset("profilepic");
         user.save(null, {
           success: function(user) {
-            updateUser();
+            updateUserInfo();
           },
           error: function(user, error) {
             console.log(error.message);
@@ -188,15 +184,12 @@ window.fbAsyncInit = function() {
     });
   }
   
-  updateUser();
+  updateUserInfo();
 
   //Event Handlers
 
   $(".submit").on('click', function (e) {
     var id = $(this).attr('id');
-    var email = $("#email").val();
-    var password = $("#password").val();
-    var confirm = $("#confirm").val();
 
     switch (id) {
       case 'login':
@@ -206,13 +199,9 @@ window.fbAsyncInit = function() {
         logout();
         break;
       case 'signup':
-        signup(email);
+        signup();
     }
     e.preventDefault();
-  });
-
-  $("#facebook").on('click', function() {
-    loginWithFacebook();
   });
 
   $("#forgot").click(function () {
