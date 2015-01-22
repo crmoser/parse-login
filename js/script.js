@@ -38,39 +38,33 @@ window.fbAsyncInit = function() {
   function signup(email) {
     var passwordsDoMatch = passwordsMatch(),
         emailOk = validateEmail(email),
-        password = $("#password").val(),
-        query = new Parse.Query(Parse.User);
+        password = $("#password").val();
 
     if (passwordsDoMatch && emailOk) {
-      query.equalTo("approvedEmail", email);
-      query.first({
-        success: function(user) {
-          // If the email entered matches a result in the database - that means the admin has approved their application - create a new user.
-          if (user) {
-            var user = new Parse.User();
-            user.set("username", email);
-            user.set("password", password);
-            user.set("email", email);
-             
-            user.signUp(null, {
-              success: function(user) {
-                alert("You're signed up!");
-              },
-              error: function(user, error) {
-                // Show the error message somewhere and let the user try again.
-                alert("Error: " + error.code + " " + error.message);
-              }
-            });
 
-          } else {
-            alert("No account with that email exists.")
-          }
+      Parse.Cloud.run('deleteUser', {email : email}, {
+        success: function(result) {
+          console.log(result);
+          // var user = new Parse.User();
+          // user.set("username", email);
+          // user.set("password", password);
+          // user.set("email", email);
+           
+          // user.signUp(null, {
+          //   success: function(user) {
+          //     alert("You're signed up!");
+          //   },
+          //   error: function(user, error) {
+          //     // Show the error message somewhere and let the user try again.
+          //     alert("Error: " + error.code + " " + error.message);
+          //   }
+          // });
         },
         error: function(error) {
-          //Only fires if the query fails!! Not if it doesn't find a match. Lame.
-          alert(error.message);
+         console.log(error);
         }
       });
+
     } else {
       errorMessaging(emailOk, passwordsDoMatch);
     }
