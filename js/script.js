@@ -40,14 +40,14 @@ window.fbAsyncInit = function() {
         email = $("#email").val(),
         emailOk = validateEmail(email),
         password = $("#password").val(),
-        username = $("#name").val();
+        username = email;
 
     if (passwordsDoMatch && emailOk) {
 
       Parse.Cloud.run('updateUser', {
         email : email,
         password : password,
-        username : username
+        username : email //Just set username to email
         }, {
         success: function(result) {
           if (result) {
@@ -176,7 +176,7 @@ window.fbAsyncInit = function() {
 
   $(".submit").on('click', function (e) {
     var id = $(this).attr('id'),
-        username = $("#name").val(),
+        username = $("#email").val(),
         password = $("#password").val();
 
     switch (id) {
